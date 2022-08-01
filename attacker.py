@@ -26,9 +26,9 @@ class Attacker:
 
         # Demand based attack
         elif self.strategy == 'remote':
-            p = 1 - np.sum(self.demand_pattern[t,:,:], axis = 1)/np.sum(self.demand_pattern[t,:,:])
+            p = 2/self.num_zone - np.sum(self.demand_pattern[t,:,:], axis = 1)/np.sum(self.demand_pattern[t,:,:])
+            p = p.clip(0)
             p /= np.sum(p)
-            # print(p)
             return np.random.choice(list(range(self.num_zone)), size=self.power, p = p, replace = True)
         elif self.strategy == 'center':
             p = np.sum(self.demand_pattern[t,:,:], axis = 1)/np.sum(self.demand_pattern[t,:,:])
@@ -158,40 +158,7 @@ class Attacker:
                     new_c = cids[rids2.index(r)]
                     total_cost += costs[r,new_c] - costs2[r,c] # additioal cost for serve the same pass
                 else: 
-                    total_cost += costs2[r,c] # unserved, need another veh to serve
-            # to_remove = []
-            # for r,c in zip(rids, cids):
-            #     if r >= len(rlist):
-            #         # to_remove.append(r - len(rlist))
-            #         if c in cids2: # this veh was supposed to serve a real passenger in original matching
-            #             rid = rids2[cids2.index(c)]
-            #             if rid not in rids: # now the request is unserved
-            #                 total_cost += costs[r,c]-\
-            #                     costs2[rid, c] + self.travel_distance[alist[r-len(rlist)], rlist[rid]] # >0 then the vehicles is dragging away from its original matching
-            #         # else:
-            #         #     total_cost += min(max_drag, costs[r,c]) # vehicle is not supposed to match with any pass, the attack is just a blocking of service
-            #     elif r in rids2: # if the passenger is also served in the previous solution
-            #         cid = cids2[rids2.index(r)]
-            #         total_cost += costs[r,c] - costs2[r,cid] # compare the previous matching cost and the new matching cost
-            # if total_cost < 0: # why ?
-            #     print("TYPE2")
-            #     print("now {} previous {}".format(costs[r,c], costs2[r,cid]))
-            #     print(rlist)
-            #     print(clist)
-            #     print(alist)
-            #     print(rids)
-            #     print(cids)
-            #     print(rids2)
-            #     print(cids2)
-            #     print(r)
-            #     print(c)
-            #     print(cid)
-            #     print(costs)
-            #     print(costs2)
-            #     print("______")
-
-            # for a in to_remove:
-            #     del attack[a]
+                    total_cost += self.duration #costs2[r,c] # unserved, need another veh to serve
         # veh_schedule is a three element tuple
         return total_cost, attack
 
